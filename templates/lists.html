@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交易系统</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="{{ get_config('URL_PREFIX') }}static/bootstrap/js/bootstrap.js"></script>
+    <script src="{{ get_config('URL_PREFIX') }}static/bootbox.min.js"></script>
+    <link rel="stylesheet" href="{{ get_config('URL_PREFIX') }}static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="{{ get_config('URL_PREFIX') }}static/bootstrap/css/bootstrap-theme.css">
+    <link rel="stylesheet" href="{{ get_config('URL_PREFIX') }}static/style.css?1">
+</head>
+<body>
+    <div class="container">
+        <header class="navbar navbar-static-top bs-docs-nav" id="top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse"
+                            data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a href="{{ get_config('URL_PREFIX') }}" class="navbar-brand">模拟交易系统</a>
+                </div>
+                <nav id="bs-navbar" class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="{{ get_config('URL_PREFIX') }}trade">交易</a>
+                        </li>
+                        <li>
+                            <a href="{{ get_config('URL_PREFIX') }}lists">我的资产</a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if session['user_id'] %}
+                        <li>
+                            <p class="navbar-text">欢迎你，{{ session['user_id'] }}</p>
+                        </li>
+                        <li>
+                            <a href="{{ get_config('URL_PREFIX') }}logout">退出</a>
+                        </li>
+                        {% else %}
+                        <li><a href="{{ get_config('URL_PREFIX') }}login">登录</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <div class="container">
+            <ul id="myTab" class="nav nav-tabs">
+                <li class="active">
+                    <a href="#order" data-toggle="tab">当前委托</a>
+                </li>
+                <li>
+                    <a href="#history" data-toggle="tab">委托历史</a>
+                </li>
+                <li><a href="#mine" data-toggle="tab">我的持仓</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade in active" id="order">
+                    <table class="table table-striped">
+                        <caption>委托</caption>
+                        <tr>
+                            <th>ID</th>
+                            <th>交易方向</th>
+                            <th>交易行为</th>
+                            <th>购买品种</th>
+                            <th>挂单价格</th>
+                            <th>交易数量</th>
+                            <th>交易总额</th>
+                            <th>挂单时间</th>
+                            <th>操作</th>
+                        </tr>
+                        <tbody id="weituo"></tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="history">
+                    <table class="table table-striped">
+                        <caption>委托历史</caption>
+                        <tr>
+                            <th>ID</th>
+                            <th>交易方向</th>
+                            <th>交易行为</th>
+                            <th>购买品种</th>
+                            <th>挂单价格</th>
+                            <th>交易数量</th>
+                            <th>交易总额</th>
+                            <th>交易状态</th>
+                            <th>挂单时间</th>
+                        </tr>
+                        <tbody id="order_history"></tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="mine">
+                    <table class="table table-striped">
+                        <caption>我的持仓</caption>
+                        <tr>
+                            <th>ID</th>
+                            <th>交易行为</th>
+                            <th>品种</th>
+                            <th>可用数量</th>
+                            <th>冻结数量</th>
+                            <th>平均价格</th>
+                            <th>上次交易时间</th>
+                        </tr>
+                        <tbody id="hold_history"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var wxid = "{{session['user_id']}}";
+        $(function(){
+            get_order();
+            get_history();
+            get_hold();
+        });
+
+        function cancel(id, obj) {
+            $.ajax({
+                url: "{{ get_config('URL_PREFIX') }}cancelOrder",
+                data: {
+                    wxid: wxid,
+                    id: id
+                },
+                type: "POST",
+                success: function(data) {
+                    if(data && data.success) {
+                        $(obj).parents("tr").remove();
+                        bootbox.alert("撤单成功！");
+                    }
+                    else {
+                        bootbox.alert("撤单失败！");
+                    }
+                }
+            });
+        }
+
+        function get_order() {
+            $.ajax({
+                url: "{{ get_config('URL_PREFIX') }}getEntrustDate/" + wxid,
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    html = "";
+                    $.each(data, function(index, dt){
+                        html += `
+                            <tr>
+                                <td>${dt['id']}</td>
+                                <td>${dt['ocFlag']=='o'?"买入":"卖出"}</td>
+                                <td>${dt['bsFlag']==1?"买多":"卖空"}</td>
+                                <td>${dt['symbolName']}</td>
+                                <td>${dt['price']}</td>
+                                <td>${dt['quantity']}</td>
+                                <td>${dt['frozenMargin']}</td>
+                                <td>${dt['orderTime']}</td>
+                                <td><a href="javascript:;" onclick="javascript:cancel(${dt['id']}, this);">撤单</a></td>
+                            </tr>
+                        `;
+                    });
+
+                    $("#weituo").html(html);
+                }
+            });
+        }
+
+        function get_history() {
+            $.ajax({
+                url: "{{ get_config('URL_PREFIX') }}getEntrustDateHistory/" + wxid,
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    html = "";
+                    $.each(data, function(index, dt){
+                        html += `
+                            <tr>
+                                <td>${dt['id']}</td>
+                                <td>${dt['ocFlag']=='o'?"买入":"卖出"}</td>
+                                <td>${dt['bsFlag']==1?"买多":"卖空"}</td>
+                                <td>${dt['symbolName']}</td>
+                                <td>${dt['price']}</td>
+                                <td>${dt['quantity']}</td>
+                                <td>${dt['frozenMargin']}</td>
+                                <td>${dt['state']==2?"已成交":"已撤销"}</td>
+                                <td>${dt['orderTime']}</td>
+                            </tr>
+                        `;
+                    });
+
+                    $("#order_history").html(html);
+                }
+            });
+        }
+
+        function get_hold() {
+            $.ajax({
+                url: "{{ get_config('URL_PREFIX') }}getPositionDate/" + wxid,
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    html = "";
+                    $.each(data, function(index, dt){
+                        html += `
+                            <tr>
+                                <td>${dt['id']}</td>
+                                <td>${dt['bsFlag']==1?"买多":"卖空"}</td>
+                                <td>${dt['symbolName']}</td>
+                                <td>${dt['quantity']}</td>
+                                <td>${dt['frozenQuantity']}</td>
+                                <td>${dt['openPrice']}</td>
+                                <td>${dt['updated_time']}</td>
+                            </tr>
+                        `;
+                    });
+
+                    $("#hold_history").html(html);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
