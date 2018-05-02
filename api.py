@@ -3,7 +3,7 @@ import sys, datetime, json, logging
 reload(sys)
 sys.setdefaultencoding('utf-8')
 from flask import Flask, request, session, render_template, url_for, redirect, jsonify
-from Model.Db_util import db, User, Order, Hold
+from model.Db_util import db, User, Order, Hold
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.INFO)
 handler = logging.FileHandler("logs/trade.log")

@@ -1,0 +1,14 @@
+{
+    "DATABASE" : {
+        "drivername":   "mysql+pymysql",
+        "host":         "127.0.0.1",
+        "port":         "3306",
+        "username":     "root",
+        "password":     "abc123",
+        "database":     "test",
+        "query": {"charset": "utf8"}
+    },
+    "SOCKET_ADDR": [
+        "tdsocket.jujin8.com"
+    ]
+}

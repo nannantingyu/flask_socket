@@ -49,7 +49,7 @@ class ChatBackend(object):
                 gevent.spawn(self.send, client, data)
 
             data_json = json.loads(data.decode("unicode_escape").replace("'", '"').encode("utf-8"))
-            if data_json['code'] in self.all_species_client:
+            if "code" in data_json and data_json['code'] in self.all_species_client:
                 for client in self.all_species_client[data_json['code']]:
                     gevent.spawn(self.send, client, data)
 

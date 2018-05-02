@@ -223,18 +223,21 @@
         });
     </script>
     <script>
-        const socket = io('http://tdsocket.jujin8.com', {
-            "transports":['websocket', 'polling']
-        });
+        const ws = new WebSocket("wss://weixin.jujin8.com/tdsocket/receive"),
+            subscribe_codes = ["AGT+D", "AUT+D", "MAUT+D", "LLG"];
 
-        for (let code of ["AGT+D", "AUT+D", "MAUT+D", "LLG"]) {
-            socket.on('quotation_' + code, (data) => {
-                $("#price_" + data.code.replace("+", "_")).text(data.last);
-                $("#low_" + data.code.replace("+", "_")).text(data.sell);
-                $("#high_" + data.code.replace("+", "_")).text(data.buy);
-                $("#volume_" + data.code.replace("+", "_")).text(data.volume);
-            });
-        }
+        ws.onmessage = function(evt) {
+            // console.log(evt.data);
+            let dt = JSON.parse(evt.data);
+            if(evt.data.indexOf("code")) {
+                if(subscribe_codes.indexOf(dt['code']) >= 0) {
+                    $("#price_" + dt.code.replace("+", "_")).text(dt.last);
+                    $("#low_" + dt.code.replace("+", "_")).text(dt.sell);
+                    $("#high_" + dt.code.replace("+", "_")).text(dt.buy);
+                    $("#volume_" + dt.code.replace("+", "_")).text(dt.volume);
+                }
+            }
+        };
     </script>
 </body>
 </html>
