@@ -21,7 +21,7 @@ class Qmanager:
 
         load_dotenv('.env')
         self.r = redis.Redis(host=environ.get('redis_host'))
-	self.r_local = redis.Redis(host=environ.get('redis_host_local'))
+        self.r_local = redis.Redis(host=environ.get('redis_host_local'))
 
     def manager_proc(self):
         redis_thread = threading.Thread(target=self.push_redis)
@@ -39,12 +39,10 @@ class Qmanager:
 
         for item in ps.listen():
             try:
-		print item
                 if not isinstance(item['data'], long):
                     data = json.loads(item['data'])
                     code = data['code']
-                    push_data = item['data']
-		    print push_data
+                    push_data = json.dumps({"type": "hq", "data": data})
                     ptime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(data['quoteTime'])))
 
                     if code not in self.last:
@@ -78,10 +76,10 @@ class Qmanager:
                                      auto_offset_reset="earliest")
 
             for msg in consumer:
-                try:
-                    data = msg.value.decode('utf-8')
-                    self.r_local.publish("chat", data)
-                except Exception, e:
-                    print e
+                data = msg.value.decode('utf-8')
+                d = json.loads(data)
+                push_data = json.dumps({"type": "kx", "data": d})
+                self.r_local.publish("chat", push_data)
         except Exception,e:
             logger.error(e.message)
+

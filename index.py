@@ -6,6 +6,14 @@ import gevent
 from flask import Flask, render_template
 from flask_sockets import Sockets
 
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
+handler = logging.FileHandler("logs/sockets.log")
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 REDIS_CHAN = 'chat'
 
 app = Flask(__name__)
@@ -41,17 +49,21 @@ class ChatBackend(object):
             data = data.decode("utf-8")
             client.send(data)
         except Exception,e:
+            self.clients.remove(client)
             print e
 
     def run(self):
-        for data in self.__iter_data():
-            for client in self.clients:
-                gevent.spawn(self.send, client, data)
-
-            data_json = json.loads(data.decode("unicode_escape").replace("'", '"').encode("utf-8"))
-            if "code" in data_json and data_json['code'] in self.all_species_client:
-                for client in self.all_species_client[data_json['code']]:
+        try:
+            for data in self.__iter_data():
+                for client in self.clients:
                     gevent.spawn(self.send, client, data)
+
+                data_json = json.loads(data.decode("unicode_escape").replace("'", '"').encode("utf-8"))
+                if "code" in data_json and data_json['code'] in self.all_species_client:
+                    for client in self.all_species_client[data_json['code']]:
+                        gevent.spawn(self.send, client, data)
+        except Exception,e:
+            logger.error(e.message)
 
     def start(self):
         gevent.spawn(self.run)
@@ -62,6 +74,10 @@ chats.start()
 @app.route('/')
 def hello():
     return render_template('index.html')
+
+@sockets.route('/close')
+def close(ws):
+    print "close"
 
 @sockets.route('/receive')
 def outbox(ws):
@@ -75,3 +91,4 @@ def outbox(ws):
                     chats.register(c, ws)
 
         gevent.sleep(0.1)
+
