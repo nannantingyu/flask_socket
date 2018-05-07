@@ -17,7 +17,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 rc = redis.Redis(host=environ.get('redis_host'))
-rlocal = redis.Redis(host="127.0.0.1")
 ps = rc.pubsub()
 ps.psubscribe(['quotation_changed*'])
 

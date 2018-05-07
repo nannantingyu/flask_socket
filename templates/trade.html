@@ -186,7 +186,7 @@
                     },
                     success: function(data) {
                         if(data && data.success == 1) {
-                            location.href = "/lists";
+                            location.href = "{{ get_config('URL_PREFIX') }}lists";
                         }
                         else {
                             bootbox.alert("挂单失败");

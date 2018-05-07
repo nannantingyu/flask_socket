@@ -31,7 +31,7 @@
                 },
                 success: function(data) {
                     if(data && data.success == 1) {
-                        location.href = "/trade"
+                        location.href = "{{ get_config('URL_PREFIX') }}trade"
                     }
                     else {
                         alert("登录失败");
