@@ -49,49 +49,48 @@ def scan_db_to_manage(code, low, high):
 
     db.session.commit()
 
-for item in ps.listen():
-    try:
-        if not isinstance(item['data'], long):
-            data = json.loads(item['data'])
-            code = data['code']
-            if code in ['AGT+D', 'AUT+D', 'MAUT+D', 'LLG']:
-                push_data = item['data'].decode("utf-8")
+if __name__ == '__main__':
+    for item in ps.listen():
+        try:
+            if not isinstance(item['data'], long):
+                data = json.loads(item['data'])
+                code = data['code']
+                if code in ['AGT+D', 'AUT+D', 'MAUT+D', 'LLG']:
+                    push_data = item['data'].decode("utf-8")
 
-                # 在报价qlength次之内的，先存到redis猴子那个
-                if code not in tick_list:
-                    # 如果第一次获取数据
-                    tick_list[code] = {
-                        "times": 1,
-                        "time": data['quoteTime']
-                    }
-
-                    rlocal.zadd("trade_manage:buy:%s:%s" % (code, data['quoteTime']), time.time(),
-                                float(data['buy']))
-                    rlocal.zadd("trade_manage:sell:%s:%s" % (code, data['quoteTime']), time.time(),
-                                float(data['sell']))
-                else:
-                    if tick_list[code]['times'] <= qlength:
-                        tick_list[code]['times'] += 1
-                        rlocal.zadd("trade_manage:buy:%s:%s" % (code, tick_list[code]['time']), time.time(),
-                                    float(data['buy']))
-                        rlocal.zadd("trade_manage:sell:%s:%s" % (code, tick_list[code]['time']), time.time(),
-                                    float(data['sell']))
-                    else:
-                        # 到了qlength次时，扫描数据库
-                        key_buy = "trade_manage:buy:%s:%s" % (code, tick_list[code]['time'])
-                        key_sell = "trade_manage:sell:%s:%s" % (code, tick_list[code]['time'])
-                        high = rlocal.zrevrange(key_buy, 0, 0, withscores=True)[0][1]
-                        low = rlocal.zrange(key_sell, 0, 0, withscores=True)[0][1]
-                        scan_db_to_manage(code, high, low)
-
+                    # 在报价qlength次之内的，先存到redis猴子那个
+                    if code not in tick_list:
+                        # 如果第一次获取数据
                         tick_list[code] = {
                             "times": 1,
-                            "time": data['quoteTime']
+                            "time": data['quoteTime'],
+                            "buy_list": [],
+                            "sell_list": []
                         }
 
-                        rlocal.zadd("trade_manage:buy:%s:%s" % (code, tick_list[code]['time']), time.time(),
-                                    float(data['buy']))
-                        rlocal.zadd("trade_manage:sell:%s:%s" % (code, tick_list[code]['time']), time.time(),
-                                    float(data['sell']))
-    except Exception,e:
-        logger.error(e.message)
+                        tick_list[code]['buy_list'].append(float(data['buy']))
+                        tick_list[code]['sell_list'].append(float(data['sell']))
+                    else:
+                        if tick_list[code]['times'] <= qlength:
+                            tick_list[code]['times'] += 1
+
+                            tick_list[code]['buy_list'].append(float(data['buy']))
+                            tick_list[code]['sell_list'].append(float(data['sell']))
+                        else:
+                            # 到了qlength次时，扫描数据库
+                            high = max(tick_list[code]['buy_list'])
+                            low = min(tick_list[code]['sell_list'])
+                            print code, high, low
+                            scan_db_to_manage(code, high, low)
+
+                            tick_list[code] = {
+                                "times": 1,
+                                "time": data['quoteTime'],
+                                "buy_list": [],
+                                "sell_list": []
+                            }
+
+                            tick_list[code]['buy_list'].append(float(data['buy']))
+                            tick_list[code]['sell_list'].append(float(data['sell']))
+        except Exception,e:
+            logger.error(e.message)

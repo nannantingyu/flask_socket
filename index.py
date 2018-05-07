@@ -3,6 +3,7 @@ import os
 import logging
 import redis, json
 import gevent
+import re
 from flask import Flask, render_template
 from flask_sockets import Sockets
 
@@ -49,19 +50,32 @@ class ChatBackend(object):
             data = data.decode("utf-8")
             client.send(data)
         except Exception,e:
-            self.clients.remove(client)
-            print e
+            self.clients.discard(client)
 
     def run(self):
         try:
             for data in self.__iter_data():
+                if "href" in data:
+                    continue
+
                 for client in self.clients:
                     gevent.spawn(self.send, client, data)
 
-                data_json = json.loads(data.decode("unicode_escape").replace("'", '"').encode("utf-8"))
-                if "code" in data_json and data_json['code'] in self.all_species_client:
-                    for client in self.all_species_client[data_json['code']]:
-                        gevent.spawn(self.send, client, data)
+                try:
+                    ap = re.compile(r'(=")(.*?)(")')
+                    data_re = ap.sub(r'=\\"\2\\"', data)
+                    data_json = json.loads(data_re.decode("unicode_escape")
+                                           .replace('\r', '')
+                                           .replace('\n', '').encode("utf-8"))
+
+                    if "code" in data_json and data_json['code'] in self.all_species_client:
+                        for client in self.all_species_client[data_json['code']]:
+                            gevent.spawn(self.send, client, data)
+                except Exception,e:
+                    logger.error(e.message)
+                    logger.error(data_re)
+                    continue
+                    
         except Exception,e:
             logger.error(e.message)
 

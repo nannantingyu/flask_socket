@@ -12,120 +12,94 @@
 </head>
 <body>
     <div class="container">
-        <header class="navbar navbar-static-top bs-docs-nav" id="top">
-            <div class="container">
-                <div class="navbar-header">
-                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse"
-                            data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a href="/" class="navbar-brand">模拟交易系统</a>
-                </div>
-                <nav id="bs-navbar" class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li>
-                            <a href="{{ get_config('URL_PREFIX') }}trade">交易</a>
-                        </li>
-                        <li>
-                            <a href="{{ get_config('URL_PREFIX') }}lists">我的资产</a>
-                        </li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        {% if session['user_id'] %}
-                        <li>
-                            <p class="navbar-text">欢迎你，{{ session['user_id'] }}</p>
-                        </li>
-                        <li>
-                            <a href="{{ get_config('URL_PREFIX') }}logout">退出</a>
-                        </li>
-                        {% else %}
-                        <li><a href="{{ get_config('URL_PREFIX') }}login">登录</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </div>
-        </header>
+        {% include 'navi.html' %}
 
         <div class="container">
             <div class="row">
-                <div class="col-md-3">
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            品种：AGT+D
-                        </li>
-                        <li class="list-group-item">
-                            当前价格：<span id="price_AGT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最高价：<span id="high_AGT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最低价：<span id="low_AGT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            成交量：<span id="volume_AGT_D"></span>
-                        </li>
-                    </ul>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    品种：AGT+D
+                                </li>
+                                <li class="list-group-item">
+                                    当前价格：<span id="price_AGT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最高价：<span id="high_AGT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最低价：<span id="low_AGT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    成交量：<span id="volume_AGT_D"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    品种：AUT+D
+                                </li>
+                                <li class="list-group-item">
+                                    当前价格：<span id="price_AUT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最高价：<span id="high_AUT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最低价：<span id="low_AUT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    成交量：<span id="volume_AUT_D"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    品种：MAUT+D
+                                </li>
+                                <li class="list-group-item">
+                                    当前价格：<span id="price_MAUT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最高价：<span id="high_MAUT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最低价：<span id="low_MAUT_D"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    成交量：<span id="volume_MAUT_D"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    品种：LLG
+                                </li>
+                                <li class="list-group-item">
+                                    当前价格：<span id="price_LLG"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最高价：<span id="high_LLG"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    最低价：<span id="low_LLG"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    成交量：<span id="volume_LLG"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            品种：AUT+D
-                        </li>
-                        <li class="list-group-item">
-                            当前价格：<span id="price_AUT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最高价：<span id="high_AUT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最低价：<span id="low_AUT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            成交量：<span id="volume_AUT_D"></span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            品种：MAUT+D
-                        </li>
-                        <li class="list-group-item">
-                            当前价格：<span id="price_MAUT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最高价：<span id="high_MAUT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最低价：<span id="low_MAUT_D"></span>
-                        </li>
-                        <li class="list-group-item">
-                            成交量：<span id="volume_MAUT_D"></span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            品种：LLG
-                        </li>
-                        <li class="list-group-item">
-                            当前价格：<span id="price_LLG"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最高价：<span id="high_LLG"></span>
-                        </li>
-                        <li class="list-group-item">
-                            最低价：<span id="low_LLG"></span>
-                        </li>
-                        <li class="list-group-item">
-                            成交量：<span id="volume_LLG"></span>
-                        </li>
-                    </ul>
+                <div class="col-md-6">
+                    <ul id="kx" style="max-height:500px; overflow-y: auto;"></ul>
                 </div>
             </div>
         </div>
@@ -223,21 +197,42 @@
         });
     </script>
     <script>
-        const ws = new WebSocket("wss://weixin.jujin8.com/tdsocket/receive"),
+        let ws = new WebSocket("wss://weixin.jujin8.com/tdsocket/receive"),
             subscribe_codes = ["AGT+D", "AUT+D", "MAUT+D", "LLG"];
 
-        ws.onmessage = function(evt) {
-            // console.log(evt.data);
+        let onmessage = function(evt) {
             let dt = JSON.parse(evt.data);
-            if(evt.data.indexOf("code")) {
-                if(subscribe_codes.indexOf(dt['code']) >= 0) {
-                    $("#price_" + dt.code.replace("+", "_")).text(dt.last);
-                    $("#low_" + dt.code.replace("+", "_")).text(dt.sell);
-                    $("#high_" + dt.code.replace("+", "_")).text(dt.buy);
-                    $("#volume_" + dt.code.replace("+", "_")).text(dt.volume);
+
+            if(dt.type == 'kx' && dt.data['dtype'] == 'insert') {
+                $("#kx").append(`<li><p>${dt.data.publish_time}</p><p>${dt.data.body}</p></li>`);
+            }
+            else {
+                if(subscribe_codes.indexOf(dt.data['code']) >= 0) {
+                    $("#price_" + dt.data.code.replace("+", "_")).text(dt.data.last);
+                    $("#low_" + dt.data.code.replace("+", "_")).text(dt.data.sell);
+                    $("#high_" + dt.data.code.replace("+", "_")).text(dt.data.buy);
+                    $("#volume_" + dt.data.code.replace("+", "_")).text(dt.data.volume);
                 }
             }
         };
+
+        let onclose = function() {
+            console.log("close...");
+            reconnect();
+        }
+
+        ws.onmessage = onmessage;
+        ws.onclose = onclose;
+
+        let disConnct = function() {
+            setTimeout(reconnect, 1000);
+        }
+
+        let reconnect = function() {
+            ws = new WebSocket("wss://weixin.jujin8.com/tdsocket/receive");
+            ws.onmessage = onmessage;
+            ws.onclose = onclose;
+        }
     </script>
 </body>
 </html>

@@ -70,7 +70,7 @@ class Qmanager:
                 'host': environ.get('kafka_host'),
             }
 
-            consumer = KafkaConsumer('crawl_jin10_kuaixun',
+            consumer = KafkaConsumer('crawl_jin10_kuaixun', 'crawl_wallstreetcn_kuaixun',
                                      bootstrap_servers=server['host'],
                                      group_id=self.group_id,
                                      auto_offset_reset="earliest")

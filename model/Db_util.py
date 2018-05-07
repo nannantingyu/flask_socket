@@ -5,7 +5,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy, DeclarativeMeta
+from flask_sqlalchemy import SQLAlchemy, DeclarativeMeta
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:abc123@127.0.0.1/trade'

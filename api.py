@@ -168,16 +168,10 @@ def order():
         )
 
         db.session.add(wx_order)
-
-        # User.query.filter(
-        #     User.wxid == user_id
-        # ).update({
-        #     User.availableAsset: User.availableAsset - frozenMargin
-        # })
-
         db.session.commit()
     except Exception,e:
-        print e
+        logger.error(e.message)
+        db.session.rollback()
         return jsonify({
             "success": 0
         })
@@ -217,7 +211,14 @@ def getPositionDate(wxid):
         Hold.wxid==wxid
     ).all()
 
-    return jsonify([a.as_dict() for a in data])
+    return jsonify({"success": 1, "data": [a.as_dict() for a in data], "customerInfo": getCustomer(wxid)})
+
+def getCustomer(wxid):
+    data = User.query.filter(
+        User.wxid == wxid
+    ).all()
+
+    return [a.as_dict() for a in data]
 
 @app.route('/getCustomerInfo/<wxid>')
 def getCustomerInfo(wxid):
