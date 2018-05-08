@@ -20,8 +20,13 @@ REDIS_CHAN = 'chat'
 app = Flask(__name__)
 app.debug = 'DEBUG' in os.environ
 
+from dotenv import load_dotenv
+from os import environ
+load_dotenv('.env')
+
+
 sockets = Sockets(app)
-redis = redis.from_url("redis://127.0.0.1:6379")
+redis = redis.from_url("redis://%s:6379" % environ.get("redis_host_local"))
 
 class ChatBackend(object):
     all_species_client = {
