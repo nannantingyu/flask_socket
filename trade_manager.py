@@ -28,7 +28,7 @@ def scan_db_to_manage(code, low, high):
         db.and_(
             Order.symbolName == code,
             Order.state == 1,
-            Order.ocFlag == 'o',
+            Order.bsFlag == 1,
             Order.price >= low
         )
     ).update({
@@ -39,7 +39,7 @@ def scan_db_to_manage(code, low, high):
         db.and_(
             Order.symbolName == code,
             Order.state == 1,
-            Order.ocFlag == 'c',
+            Order.bsFlag == 2,
             Order.price <= high
         )
     ).update({
